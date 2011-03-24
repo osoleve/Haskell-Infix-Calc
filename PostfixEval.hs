@@ -1,6 +1,6 @@
 module PostfixEval ( postfixEval ) where
 
-import qualified Data.Char (isDigit, digitToInt)
+import qualified Data.Char (isDigit)
 
 factorial :: (Integral a) => a -> a
 factorial 0 = 1
@@ -22,11 +22,11 @@ applyOper x y z =
     
 postfixEval' :: [String] -> [Int] -> Int
 postfixEval' [] stack   = head stack
-postfixEval' (x:xs) []  = postfixEval' xs [Data.Char.digitToInt $ head x]
+postfixEval' (x:xs) []  = postfixEval' xs [read x]
 postfixEval' [x] (y:ys) = applyOper (head x) y $ head ys
 postfixEval' (x:xs) stack@(y:ys) 
   | Data.Char.isDigit $ head x = 
-    postfixEval' xs $ Data.Char.digitToInt (head x) : stack
+    postfixEval' xs $ read x : stack
   | isOperator (head x)        = postfixEval' xs [applyOper (head x) y $ head ys]  
   | otherwise                  = postfixEval' xs stack
 
