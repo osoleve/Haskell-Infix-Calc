@@ -20,14 +20,15 @@ applyOper x y z =
     '^' -> z ^ y
     '!' -> factorial y
     
-postfixEval' :: String -> [Int] -> Int
+postfixEval' :: [String] -> [Int] -> Int
 postfixEval' [] stack   = head stack
-postfixEval' (x:xs) []  = postfixEval' xs [Data.Char.digitToInt x]
-postfixEval' [x] (y:ys) = applyOper x y $ head ys
+postfixEval' (x:xs) []  = postfixEval' xs [Data.Char.digitToInt $ head x]
+postfixEval' [x] (y:ys) = applyOper (head x) y $ head ys
 postfixEval' (x:xs) stack@(y:ys) 
-  | Data.Char.isDigit x = postfixEval' xs $ Data.Char.digitToInt x : stack
-  | isOperator x        = postfixEval' xs [applyOper x y $ head ys]  
-  | otherwise           = postfixEval' xs stack
+  | Data.Char.isDigit $ head x = 
+    postfixEval' xs $ Data.Char.digitToInt (head x) : stack
+  | isOperator (head x)        = postfixEval' xs [applyOper (head x) y $ head ys]  
+  | otherwise                  = postfixEval' xs stack
 
-postfixEval :: String -> Int
+postfixEval :: [String] -> Int
 postfixEval x = postfixEval' x []

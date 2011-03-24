@@ -1,7 +1,6 @@
 import ShuntingYard
-import RDParser
 import PostfixEval
 import Tokenizer
 
-calc :: String -> Int
-calc x = parse x && postfixEval . shuntingYard . tokenize x
+calc ::  (Integral a) => String -> a
+calc x = postfixEval . shuntingYard . tokenize x

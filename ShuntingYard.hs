@@ -20,32 +20,31 @@ precedenceOf x
   | x `elem` "^!"    = 4
   | otherwise        = 0
 
-operatorActions :: String -> String -> String
-operatorActions (x:xs) [] = shuntingYard_ xs [x]
+operatorActions :: [String] -> String -> [String]
+operatorActions (x:xs) [] = shuntingYard_ xs x
 operatorActions stmt@(x:xs) stack@(y:ys)
-  | xIsAssocL && tokenPrec <= stackPrec = y : shuntingYard_ stmt ys
-  | tokenPrec < stackPrec               = y : shuntingYard_ stmt ys
-  | otherwise                           = shuntingYard_ xs $ x:stack
-  where xIsAssocL  = associativityOf x == AssocL
-        tokenPrec  = precedenceOf x
+  | xIsAssocL && tokenPrec <= stackPrec = [y] : shuntingYard_ stmt ys
+  | tokenPrec < stackPrec               = [y] : shuntingYard_ stmt ys
+  | otherwise                           = shuntingYard_ xs $ (head x):stack
+  where xIsAssocL  = associativityOf (head x) == AssocL
+        tokenPrec  = precedenceOf $ head x
         stackPrec  = precedenceOf y
                            
-stackOperations :: String -> String
+stackOperations :: String -> [String]
 stackOperations [] = []
 stackOperations stack@(x:xs)
   | '(' `elem` stack = error "Unbalanced parentheses."
-  | otherwise        = stack
+  | otherwise        = [stack]
 
-shuntingYard_ :: String -> String -> String
+shuntingYard_ :: [String] -> String -> [String]
 shuntingYard_ []       ys       = stackOperations ys
-shuntingYard_ (')':xs) []       = error "Unbalanced parens."
-shuntingYard_ (')':xs) ('(':ys) = shuntingYard_ xs ys
-shuntingYard_ (')':xs) (y:ys)   = y : shuntingYard_ (')':xs) ys
-shuntingYard_ ('(':xs) ys       = shuntingYard_ xs $ '(':ys
+shuntingYard_ (")":xs) ('(':ys) = shuntingYard_ xs ys
+shuntingYard_ (")":xs) (y:ys)   = [y] : shuntingYard_ (")":xs) ys
+shuntingYard_ ("(":xs) ys       = shuntingYard_ xs $ '(':ys
 shuntingYard_ (x:xs) stack
-  | Data.Char.isDigit x = x : shuntingYard_ xs stack
-  | isOperator x        = operatorActions (x:xs) stack
-  | otherwise           = shuntingYard_ xs stack
+  | all Data.Char.isDigit x = x : shuntingYard_ xs stack
+  | isOperator $ head x     = operatorActions (x:xs) stack
+  | otherwise               = shuntingYard_ xs stack
 
-shuntingYard :: String -> String
+shuntingYard :: [String] -> [String]
 shuntingYard stmt = shuntingYard_ stmt []
