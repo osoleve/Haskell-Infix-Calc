@@ -10,7 +10,7 @@ number [] = True
 number (x:xs)
   | expect Number (x:xs) = operator xs
   | expect LParen (x:xs) = number   xs
-  | otherwise = error "Expected a number or expression, got an operator.\n"
+  | otherwise = False
       
 operator:: String -> Bool
 operator [] = True
@@ -18,7 +18,7 @@ operator (x:xs)
   | expect L_Oper (x:xs) = number   xs
   | expect R_Oper (x:xs) = operator xs
   | expect RParen (x:xs) = operator xs 
-  | otherwise = error "Expected an operator, got a number or expression.\n"
+  | otherwise = False
 
 expect :: Expected -> String -> Bool
 expect _ [] = True
