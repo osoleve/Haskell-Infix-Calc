@@ -2,7 +2,7 @@ module RDParser ( parse ) where
 
 import Data.Char
 
-data Expected = Number | Oper | LParen | RParen
+data Expected = Number | L_Oper | R_Oper | LParen | RParen
               deriving (Eq)
 
 number :: String -> Bool
@@ -15,14 +15,16 @@ number (x:xs)
 operator:: String -> Bool
 operator [] = True
 operator (x:xs)
-  | expect Oper (x:xs)   = number   xs
+  | expect L_Oper (x:xs) = number   xs
+  | expect R_Oper (x:xs) = operator xs
   | expect RParen (x:xs) = operator xs 
   | otherwise = error "Expected an operator, got a number or expression.\n"
-                
+
 expect :: Expected -> String -> Bool
 expect _ [] = True
 expect typeOf (x:xs) 
-  | typeOf == Oper    = x `elem` "+-*/%^!"
+  | typeOf == L_Oper  = x `elem` "+-*/%^"
+  | typeOf == R_Oper  = x == '!'
   | typeOf == Number  = isDigit x
   | typeOf == RParen  = x == ')'
   | typeOf == LParen  = x == '(' && ')' `elem` xs
