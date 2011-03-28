@@ -25,7 +25,7 @@ operatorActions (x:xs) [] = shuntingYard_ xs x
 operatorActions stmt@(x:xs) stack@(y:ys)
   | xIsAssocL && tokenPrec <= stackPrec = [y] : shuntingYard_ stmt ys
   | tokenPrec < stackPrec               = [y] : shuntingYard_ stmt ys
-  | otherwise                           = shuntingYard_ xs $ (head x):stack
+  | otherwise                           = shuntingYard_ xs $ head x:stack
   where xIsAssocL  = associativityOf (head x) == AssocL
         tokenPrec  = precedenceOf $ head x
         stackPrec  = precedenceOf y
